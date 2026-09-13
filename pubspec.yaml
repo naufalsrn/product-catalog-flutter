@@ -38,6 +38,9 @@ dependencies:
   # Poppins font family for the app's typography
   google_fonts: ^6.2.1
 
+  # HTTP client for the DummyJSON API
+  http: ^1.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
