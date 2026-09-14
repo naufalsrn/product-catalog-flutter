@@ -24,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   static const _pageSize = 20;
   static const _loadMoreThreshold = 200.0;
+  static const _scrollToTopThreshold = 400.0;
 
   final AppRepository _repository = AppRepository();
   final ScrollController _scrollController = ScrollController();
@@ -36,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _hasMore = true;
   bool _isLoading = true;
   bool _isLoadingMore = false;
+  bool _showScrollToTop = false;
   String? _errorMessage;
 
   @override
@@ -54,11 +56,25 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
-    if (!_hasMore || _isLoadingMore || _isLoading) return;
     final position = _scrollController.position;
+
+    final shouldShowScrollToTop = position.pixels > _scrollToTopThreshold;
+    if (shouldShowScrollToTop != _showScrollToTop) {
+      setState(() => _showScrollToTop = shouldShowScrollToTop);
+    }
+
+    if (!_hasMore || _isLoadingMore || _isLoading) return;
     if (position.pixels >= position.maxScrollExtent - _loadMoreThreshold) {
       _loadMore();
     }
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+    );
   }
 
   Future<void> _loadFirstPage() async {
@@ -182,6 +198,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      floatingActionButton: _showScrollToTop
+          ? FloatingActionButton(
+              onPressed: _scrollToTop,
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.arrow_upward, color: AppColors.white),
+            )
+          : null,
     );
   }
 
