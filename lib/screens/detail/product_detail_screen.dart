@@ -19,12 +19,22 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  static const _reviewsPageSize = 3;
+
   final AppRepository _repository = AppRepository();
 
   Product? _product;
   String? _errorMessage;
   bool _isLoading = true;
   int _selectedImageIndex = 0;
+  int _visibleReviewCount = _reviewsPageSize;
+  bool _sortReviewsDescending = true;
+
+  List<Review> _sortedReviews(List<Review> reviews) {
+    return [...reviews]..sort(
+      (a, b) => _sortReviewsDescending ? b.rating.compareTo(a.rating) : a.rating.compareTo(b.rating),
+    );
+  }
 
   @override
   void initState() {
@@ -43,6 +53,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       setState(() {
         _product = product;
         _selectedImageIndex = 0;
+        _visibleReviewCount = _reviewsPageSize;
         _isLoading = false;
       });
     } on ApiException catch (e) {
@@ -191,12 +202,49 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ],
                 if (product.reviews.isNotEmpty) ...[
                   const SizedBox(height: 20),
-                  Text(
-                    'Reviews (${product.reviews.length})',
-                    style: AppTextStyles.semiBold(fontSize: 14, color: AppColors.white),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Reviews (${product.reviews.length})',
+                          style: AppTextStyles.semiBold(fontSize: 14, color: AppColors.white),
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => setState(() => _sortReviewsDescending = !_sortReviewsDescending),
+                        icon: Icon(
+                          _sortReviewsDescending ? Icons.arrow_downward : Icons.arrow_upward,
+                          size: 14,
+                          color: AppColors.white,
+                        ),
+                        label: Text(
+                          _sortReviewsDescending ? 'Highest rated' : 'Lowest rated',
+                          style: AppTextStyles.medium(fontSize: 12, color: AppColors.white),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
-                  ...product.reviews.map((review) => _ReviewTile(review: review)),
+                  ..._sortedReviews(product.reviews)
+                      .take(_visibleReviewCount)
+                      .map((review) => _ReviewTile(review: review)),
+                  if (_visibleReviewCount < product.reviews.length)
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _visibleReviewCount = (_visibleReviewCount + _reviewsPageSize).clamp(
+                              0,
+                              product.reviews.length,
+                            );
+                          });
+                        },
+                        child: Text(
+                          'Show more (${product.reviews.length - _visibleReviewCount} left)',
+                          style: AppTextStyles.semiBold(fontSize: 13, color: AppColors.white),
+                        ),
+                      ),
+                    ),
                 ],
               ],
             ),
