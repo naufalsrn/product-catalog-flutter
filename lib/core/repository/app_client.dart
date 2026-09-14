@@ -14,10 +14,6 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
-/// Thin wrapper around [http.Client] for the DummyJSON API: builds the
-/// request URI, applies a timeout, and turns network failures / non-2xx
-/// responses into a single [ApiException] so callers only ever handle one
-/// error type instead of HTTP status codes directly.
 class AppClient {
   AppClient({required this.baseUrl, http.Client? client})
     : _client = client ?? http.Client();
