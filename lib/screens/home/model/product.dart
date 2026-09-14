@@ -1,3 +1,19 @@
+class Review {
+  const Review({required this.rating, required this.comment, required this.reviewerName});
+
+  final int rating;
+  final String comment;
+  final String reviewerName;
+
+  factory Review.fromJson(Map<String, dynamic> json) {
+    return Review(
+      rating: (json['rating'] as num?)?.toInt() ?? 0,
+      comment: json['comment'] as String? ?? '',
+      reviewerName: json['reviewerName'] as String? ?? 'Anonymous',
+    );
+  }
+}
+
 class Product {
   const Product({
     required this.id,
@@ -11,6 +27,8 @@ class Product {
     required this.category,
     required this.thumbnail,
     required this.images,
+    required this.shippingInformation,
+    required this.reviews,
   });
 
   final int id;
@@ -24,6 +42,8 @@ class Product {
   final String category;
   final String thumbnail;
   final List<String> images;
+  final String shippingInformation;
+  final List<Review> reviews;
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
@@ -38,6 +58,10 @@ class Product {
       category: json['category'] as String? ?? '',
       thumbnail: json['thumbnail'] as String? ?? '',
       images: (json['images'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      shippingInformation: json['shippingInformation'] as String? ?? '',
+      reviews: (json['reviews'] as List<dynamic>? ?? [])
+          .map((e) => Review.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

@@ -11,6 +11,7 @@ import '../../widgets/error_view.dart';
 import '../../widgets/gradient_background.dart';
 import '../../widgets/loading_view.dart';
 import '../../widgets/product_card.dart';
+import '../detail/product_detail_screen.dart';
 import 'model/product.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -215,8 +216,8 @@ class _HomeScreenState extends State<HomeScreen> {
           return ProductCard(
             product: product,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${product.title} — detail screen coming soon')),
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => ProductDetailScreen(productId: product.id)),
               );
             },
           );
